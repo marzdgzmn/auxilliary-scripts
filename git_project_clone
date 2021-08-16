@@ -1,0 +1,45 @@
+# 
+# Clones all repositories under a specified BitBucket project
+# Steps:
+#   1.) Save the project's repo list in json format, which you can retrieve from "http://$DOMAIN/rest/api/1.0/projects/$PROJECTNAME/repos/?limit=100", in a file. e.g. repo_list
+#   2.) Run this script. This will create another script named 'clone_repos.sh' which you can run to actually clone all repositories.
+#
+
+#while (( "$#" )); do
+#  case "$1" in
+#    --user)
+#      USERNAME="$2"
+#      shift 2
+#      ;;
+#    --passwd)
+#      PASSWD="$2"
+#      shift 2
+#      ;;
+#    --project)
+#      PROJECT="$2"
+#      shift 2
+#      ;;
+#    --domain)
+#      DOMAIN="$2"
+#      shift 2
+#      ;;
+#    -*) # Unsupported Flags
+#      echo "Error: Unsupported flag $1" >&2
+#      exit 1
+#      ;;
+#  esac   
+#done
+
+#if [[ -z $USERNAME || -z $PROJECT || -z $DOMAIN ]]; then
+#  echo "Error: Please set all required arguments: user, password, domain, and project"
+#  exit 1
+#fi
+
+# jq syntax helpful links: 
+# - http://stackoverflow.com/questions/30601278/how-to-extract-keys-from-multiple-nested-arrays-using-jq
+# - http://stackoverflow.com/questions/18592173/select-objects-based-on-value-of-variable-in-object-using-jq
+
+# curl -s -u $USERNAME:$PASSWD "https://$DOMAIN/rest/api/1.0/projects/$PROJECT/repost/?limit\=100" | \
+
+jq -r '.values[].links.clone[] | select(.name=="ssh") | .href' ./repo_list  \
+  | xargs -I {} echo "git clone '{}'" > clone_repos.sh
